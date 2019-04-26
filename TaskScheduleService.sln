@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskScheduleService", "TaskScheduleService\TaskScheduleService.csproj", "{BBC85BB9-63BE-4249-B935-75E5333221AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Development|Any CPU = Development|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Development|Any CPU.Build.0 = Development|Any CPU
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E0540480-09B0-4F83-AEF1-20462EF8EEF7}
+	EndGlobalSection
+EndGlobal
