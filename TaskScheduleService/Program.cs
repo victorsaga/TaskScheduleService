@@ -199,6 +199,9 @@ namespace ConsoleApp1
                     var startInfo = new ProcessStartInfo();
                     startInfo.WorkingDirectory = s.WorkingDirectory;
                     startInfo.FileName = $"{startInfo.WorkingDirectory}\\{s.FileName}";
+                    if (s.Arguments != null)
+                        startInfo.Arguments = s.Arguments;
+
                     Process proc = Process.Start(startInfo);
 
                     msg = $"## End Process {context.Trigger.Key}";
@@ -225,6 +228,7 @@ namespace ConsoleApp1
         public string ScheduleName { get; set; }
         public string WorkingDirectory { get; set; }
         public string FileName { get; set; }
+        public string Arguments { get; set; }
         public string CronExpress { get; set; }
     }    
 }

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28822.285
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskScheduleService", "TaskScheduleService\TaskScheduleService.csproj", "{BBC85BB9-63BE-4249-B935-75E5333221AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleArgs", "ConsoleArgs\ConsoleArgs.csproj", "{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +20,12 @@ Global
 		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Development|Any CPU.Build.0 = Development|Any CPU
 		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBC85BB9-63BE-4249-B935-75E5333221AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Development|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Development|Any CPU.Build.0 = Debug|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B13FBC0-C0F4-46B0-845E-99E72BC5B599}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
