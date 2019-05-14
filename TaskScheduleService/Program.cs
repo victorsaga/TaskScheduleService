@@ -31,8 +31,9 @@ namespace ConsoleApp1
                 });
                 LogManager.GetCurrentClassLogger().Info("Run Run Run");
                 host.Run();
-            }catch(Exception e)
-            {                
+            }
+            catch (Exception e)
+            {
                 LogManager.GetCurrentClassLogger().Error($"{e.Message}{Environment.NewLine}{e.StackTrace}");
             }
         }
@@ -40,9 +41,9 @@ namespace ConsoleApp1
         private static void ConfigureService(HostConfigurator x)
         {
             x.StartAutomatically();
-            
+
             x.SetServiceName(GetSettings().GetValue<string>("ServiceName"));
-            x.SetDisplayName(GetSettings().GetValue<string>("ServiceName"));                
+            x.SetDisplayName(GetSettings().GetValue<string>("ServiceName"));
             x.SetDescription(GetSettings().GetValue<string>("ServiceDescription"));
 
             x.EnableServiceRecovery(r =>
@@ -83,7 +84,7 @@ namespace ConsoleApp1
         public bool Start(HostControl hostControl)
         {
             scheduler.Start().ConfigureAwait(false).GetAwaiter().GetResult();
-            
+
             MainScheduleJobs();
 
             return true;
@@ -127,12 +128,12 @@ namespace ConsoleApp1
                 Console.WriteLine(logMsg);
 
                 //刪除動態加入的Job                
-                scheduler.DeleteJobs( scheduler.GetJobKeys(
+                scheduler.DeleteJobs(scheduler.GetJobKeys(
                                                                 GroupMatcher<JobKey>.GroupEquals(subJobGroupName)
-                                                            ).Result );
+                                                            ).Result);
 
                 //重新從appsettings.json加入Schedules
-                schedules = Program.GetSettings().GetSection("Schedules").Get<List<ScheduleModel>>();                
+                schedules = Program.GetSettings().GetSection("Schedules").Get<List<ScheduleModel>>();
                 if (schedules != null && schedules.Count > 0)
                 {
                     schedules.Where(x => !string.IsNullOrEmpty(context.JobDetail.Key.Name)
@@ -148,7 +149,7 @@ namespace ConsoleApp1
                                 .Build();
 
                             ITrigger trigger = TriggerBuilder.Create()
-                                .WithIdentity( x.ScheduleName + version, subJobGroupName)
+                                .WithIdentity(x.ScheduleName + version, subJobGroupName)
                                 .WithCronSchedule(x.CronExpress)
                                 .Build();
                             scheduler.ScheduleJob(job, trigger);
@@ -159,27 +160,27 @@ namespace ConsoleApp1
                         }
                         catch (Exception e)
                         {
-                            logger.Error($"Job : {x.ScheduleName??""}, Message: {e.Message}{Environment.NewLine}{e.StackTrace}");
+                            logger.Error($"Job : {x.ScheduleName ?? ""}, Message: {e.Message}{Environment.NewLine}{e.StackTrace}");
                         }
                     });
-                }                
+                }
                 return Task.CompletedTask;
             }
         }
-        
+
         public class SubJob : IJob
         {
             private static readonly ILogger logger = NLog.LogManager.GetCurrentClassLogger();
             public Task Execute(IJobExecutionContext context)
             {
-                string msg = $"***** Start SubJob {context.Trigger.Key}";
-
+                string triggerStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                string msg = $"***** Start SubJob {context.Trigger.Key} @{triggerStamp}";
                 logger.Info(msg);
-                Console.WriteLine($"{msg} {DateTime.Now.ToString("HHmmss")}");
-                
+                Console.WriteLine(msg);
+
                 if (schedules == null || schedules.Count == 0)
                 {
-                    logger.Warn($"SubJob's schedules object is null @{context.Trigger.Key}");
+                    logger.Warn($"SubJob's schedules object is null ({context.Trigger.Key} @{triggerStamp})");
                     return Task.CompletedTask;
                 }
 
@@ -190,39 +191,58 @@ namespace ConsoleApp1
                                                 ).FirstOrDefault();
                 if (s == null)
                 {
-                    logger.Warn($"SubJob's schedule is INVALID @{context.Trigger.Key}");
+                    logger.Warn($"SubJob's schedule is INVALID ({context.Trigger.Key} @{triggerStamp})");
                     return Task.CompletedTask;
                 }
 
                 try
                 {
-                    var startInfo = new ProcessStartInfo();
-                    startInfo.WorkingDirectory = s.WorkingDirectory;
-                    startInfo.FileName = $"{startInfo.WorkingDirectory}\\{s.FileName}";
-                    if (s.Arguments != null)
-                        startInfo.Arguments = s.Arguments;
+                    // IsPassWhenPreviousExecuting == true 當自己的前一個job仍在執行中則pass不做
+                    // 因自己也會在executing清單中，所以要判斷是不是"超過"1個
+                    if (s.IsPassWhenPreviousExecuting
+                        && scheduler.GetCurrentlyExecutingJobs().Result
+                            .Where(x => x.JobDetail.Key.Name.Contains(s.ScheduleName)).Count() > 1)
+                    {
+                        msg = $"%% Pass SubJob {context.Trigger.Key} @{triggerStamp}";
+                        logger.Info(msg);
+                        Console.WriteLine(msg);
+                    }
+                    else
+                    {
 
-                    Process proc = Process.Start(startInfo);
+                        var startInfo = new ProcessStartInfo();
+                        startInfo.WorkingDirectory = s.WorkingDirectory;
+                        startInfo.FileName = $"{startInfo.WorkingDirectory}\\{s.FileName}";
+                        if (s.Arguments != null)
+                            startInfo.Arguments = s.Arguments;
 
-                    msg = $"## End Process {context.Trigger.Key}";
-                    logger.Info(msg);
-                    Console.WriteLine($"{msg} {DateTime.Now.ToString("HHmmss")}");
+                        Process proc = Process.Start(startInfo);
 
+                        // 如要判斷前一個是否還在執行中就要加上等待，不然process會叫完exe就直接結束掉
+                        if (s.IsPassWhenPreviousExecuting)
+                            proc.WaitForExit();
+
+                        msg = $"## End Process {context.Trigger.Key} @{triggerStamp}";
+                        logger.Info(msg);
+                        Console.WriteLine(msg);
+                    }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    logger.Error($"Job : {context.Trigger.Key}, Message: {e.Message}{Environment.NewLine}{e.StackTrace}");
+                    msg = $"Job : {context.Trigger.Key}, Message: {e.Message}{Environment.NewLine}{e.StackTrace}";
+                    logger.Error(msg);
+                    Console.WriteLine($"!!!!! Error →→→ {msg}"); 
                 }
 
-                msg = $"##### End SubJob {context.Trigger.Key}";
+                msg = $"##### End SubJob {context.Trigger.Key} @{triggerStamp}";
                 logger.Info(msg);
-                Console.WriteLine($"{msg} {DateTime.Now.ToString("HHmmss")}");
+                Console.WriteLine(msg);
 
                 return Task.CompletedTask;
             }
         }
     }
-    
+
     public class ScheduleModel
     {
         public string ScheduleName { get; set; }
@@ -230,5 +250,6 @@ namespace ConsoleApp1
         public string FileName { get; set; }
         public string Arguments { get; set; }
         public string CronExpress { get; set; }
-    }    
+        public bool IsPassWhenPreviousExecuting { get; set; } = false;
+    }
 }
